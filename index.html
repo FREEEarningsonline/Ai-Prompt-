@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptKaro - AI Prompt Sharing Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col pb-16 md:pb-0 font-sans">
+
+    <!-- Desktop Top Navbar -->
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-40 w-full px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <!-- Logo -->
+            <a href="#" onclick="switchTab('home')" class="flex items-center gap-2 text-xl font-bold tracking-wider text-brand-500">
+                <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                <span>Prompt<span class="text-white">Karo</span></span>
+            </a>
+
+            <!-- Search Bar (Desktop) -->
+            <div class="hidden md:flex flex-1 max-w-md relative">
+                <input type="text" id="desktopSearch" placeholder="Search prompts..." class="w-full bg-slate-950 border border-slate-800 rounded-full px-4 py-2 pl-10 focus:outline-none focus:border-brand-500 text-sm">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500"></i>
+            </div>
+
+            <!-- Menu (Desktop) -->
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+                <button onclick="switchTab('home')" class="hover:text-brand-500 transition">Home</button>
+                <button onclick="switchTab('discover')" class="hover:text-brand-500 transition">Discover</button>
+                <button onclick="openWalletModal()" class="hover:text-brand-500 transition flex items-center gap-1">
+                    <i class="fa-solid fa-wallet text-amber-500"></i> <span id="desktopCoinDisplay">0</span> Coins
+                </button>
+                <span id="adminBtnContainer" class="hidden">
+                    <button onclick="switchTab('admin')" class="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">Admin Panel</button>
+                </span>
+                <span id="authContainer">
+                    <!-- Auth elements dynamic update -->
+                </span>
+            </nav>
+
+            <!-- Hamburger (Mobile Only) -->
+            <button onclick="toggleMobileMenu()" class="md:hidden text-2xl p-1 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobileMenu" class="fixed inset-0 bg-slate-950/95 z-50 transform translate-x-full transition-transform duration-300 flex flex-col p-6">
+        <div class="flex justify-between items-center mb-8">
+            <span class="text-lg font-bold text-brand-500">Menu</span>
+            <button onclick="toggleMobileMenu()" class="text-2xl text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex flex-col gap-6 text-lg font-semibold">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="text-left py-2 hover:text-brand-500">Home</button>
+            <button onclick="switchTab('discover'); toggleMobileMenu();" class="text-left py-2 hover:text-brand-500">Discover</button>
+            <button onclick="openWalletModal(); toggleMobileMenu();" class="text-left py-2 flex items-center justify-between">
+                <span>Wallet</span>
+                <span class="text-amber-500 text-sm"><span id="mobileMenuCoinDisplay">0</span> Coins</span>
+            </button>
+            <span id="mobileAdminBtn" class="hidden">
+                <button onclick="switchTab('admin'); toggleMobileMenu();" class="text-left py-2 text-red-500">Admin Panel</button>
+            </span>
+            <hr class="border-slate-800 my-2">
+            <div id="mobileAuthContainer" class="flex flex-col gap-4">
+                <!-- Mobile Auth Buttons -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- Banner / Hero Section -->
+        <section id="heroSection" class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 to-brand-900/30 p-8 mb-8 border border-slate-800">
+            <div class="max-w-xl">
+                <span class="bg-brand-500/10 text-brand-500 border border-brand-500/20 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase">Vast AI Library</span>
+                <h1 class="text-3xl md:text-4xl font-extrabold mt-4 mb-3 leading-tight">Get the Perfect Prompts for AI Art & Chat</h1>
+                <p class="text-slate-400 text-sm md:text-base mb-6">Explore, unlock, and share trending AI prompts. Fully optimized templates for high-conversion designs.</p>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="filterCategory('Viral')" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">🔥 Viral</button>
+                    <button onclick="filterCategory('IG Trend')" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">📸 IG Trend</button>
+                </div>
+            </div>
+            <!-- Background light blob -->
+            <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl"></div>
+        </section>
+
+        <!-- Search Bar (Mobile View) -->
+        <div class="md:hidden relative mb-6">
+            <input type="text" id="mobileSearch" placeholder="Search prompts..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 pl-11 focus:outline-none focus:border-brand-500 text-sm">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500"></i>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-4 mb-6" style="scrollbar-width: none;">
+            <button onclick="filterCategory('All')" class="category-btn bg-brand-500 text-white px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition">All Prompts</button>
+            <button onclick="filterCategory('Viral')" class="category-btn bg-slate-900 border border-slate-800 hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition">Viral</button>
+            <button onclick="filterCategory('IG Trend')" class="category-btn bg-slate-900 border border-slate-800 hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition">IG Trend</button>
+            <button onclick="filterCategory('Boys')" class="category-btn bg-slate-900 border border-slate-800 hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition">Boys</button>
+            <button onclick="filterCategory('Girls')" class="category-btn bg-slate-900 border border-slate-800 hover:border-brand-500 px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition">Girls</button>
+        </div>
+
+        <!-- Prompts Grid -->
+        <section id="promptsSection">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="sectionTitle" class="text-xl font-bold">Featured Prompts</h2>
+                <span class="text-xs text-slate-500" id="promptsCount">0 prompts found</span>
+            </div>
+            <!-- Grid Layout (2 columns mobile, 4 columns desktop) -->
+            <div id="promptsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="col-span-full py-12 text-center text-slate-500">Loading prompts...</div>
+            </div>
+        </section>
+
+        <!-- Dynamic Admin View (Hidden by default) -->
+        <section id="adminView" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h1 class="text-2xl font-bold">Admin Console</h1>
+                    <p class="text-xs text-slate-400">Manage database prompts and verify coin purchases</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="toggleAdminTab('addPrompt')" class="bg-brand-500 hover:bg-brand-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">Add/Edit Prompt</button>
+                    <button onclick="toggleAdminTab('payments')" class="bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">Verify Payments</button>
+                </div>
+            </div>
+
+            <!-- Add/Edit Prompt Form -->
+            <div id="adminAddPromptTab" class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                <h3 class="text-lg font-bold mb-4">Create or Update Prompt</h3>
+                <form id="promptForm" class="space-y-4">
+                    <input type="hidden" id="editPromptId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Title</label>
+                            <input type="text" id="pTitle" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Category / Tag</label>
+                            <select id="pCategory" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                                <option value="Viral">Viral</option>
+                                <option value="IG Trend">IG Trend</option>
+                                <option value="Boys">Boys</option>
+                                <option value="Girls">Girls</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Upload Card Image (Saves in Storage)</label>
+                        <input type="file" id="pImageFile" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-850 file:text-white hover:file:bg-slate-800">
+                        <p class="text-[10px] text-slate-500 mt-1">Note: Is input se image upload karne par wo directly Firebase Storage me save ho jayegi.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Prompt Text / Description</label>
+                        <textarea id="pDescription" rows="4" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Type</label>
+                            <select id="pType" onchange="togglePriceField()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                                <option value="free">Free</option>
+                                <option value="paid">Paid</option>
+                            </select>
+                        </div>
+                        <div id="priceFieldContainer" class="hidden">
+                            <label class="block text-xs text-slate-400 mb-1">Coins Price</label>
+                            <input type="number" id="pPrice" value="0" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div class="flex items-center gap-4 mt-6">
+                            <label class="flex items-center gap-2 cursor-pointer text-sm">
+                                <input type="checkbox" id="pTrending" class="rounded border-slate-800 text-brand-500 focus:ring-0">
+                                <span>Trending</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm">
+                                <input type="checkbox" id="pPinned" class="rounded border-slate-800 text-brand-500 focus:ring-0">
+                                <span>Pinned</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="submit" class="bg-brand-500 hover:bg-brand-600 px-6 py-2 rounded-lg text-sm font-bold transition">Save Prompt</button>
+                        <button type="button" onclick="resetForm()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm transition">Reset Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Verify Payments Tab -->
+            <div id="adminPaymentsTab" class="bg-slate-900 p-6 rounded-xl border border-slate-800 hidden">
+                <h3 class="text-lg font-bold mb-4">Pending Coin Purchase Requests</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-slate-950 text-xs text-slate-400 uppercase">
+                            <tr>
+                                <th class="px-4 py-3">User Email</th>
+                                <th class="px-4 py-3">Receipt Screenshot</th>
+                                <th class="px-4 py-3">Amount (Coins)</th>
+                                <th class="px-4 py-3">Status</th>
+                                <th class="px-4 py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminPaymentsList">
+                            <tr>
+                                <td colspan="5" class="text-center py-6 text-slate-500">No pending payments.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Bottom Navbar -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around py-3 z-40 text-slate-400">
+        <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 hover:text-brand-500">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px]">Home</span>
+        </button>
+        <button onclick="switchTab('discover')" class="flex flex-col items-center gap-1 hover:text-brand-500">
+            <i class="fa-solid fa-compass text-lg"></i>
+            <span class="text-[10px]">Discover</span>
+        </button>
+        <button onclick="openWalletModal()" class="flex flex-col items-center gap-1 hover:text-brand-500">
+            <i class="fa-solid fa-wallet text-lg"></i>
+            <span class="text-[10px]">Wallet</span>
+        </button>
+    </nav>
+
+    <!-- MODAL: Prompt Detail View -->
+    <div id="promptDetailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative p-6">
+            <button onclick="closePromptDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <!-- Left: Preview & Save Image -->
+                <div>
+                    <img id="detailImg" src="" alt="Prompt preview" class="w-full h-64 object-cover rounded-xl border border-slate-800">
+                    <a id="downloadBtn" href="#" target="_blank" download class="w-full block text-center mt-3 bg-slate-800 hover:bg-slate-700 py-2 rounded-lg text-xs font-semibold transition">
+                        <i class="fa-solid fa-download mr-1"></i> Save Image
+                    </a>
+                </div>
+
+                <!-- Right: Prompt Text, Copy, and Locked Content handling -->
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="detailTag" class="bg-brand-500/10 text-brand-500 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase">Trending</span>
+                            <span class="text-xs text-slate-500"><i class="fa-regular fa-eye mr-1"></i> <span id="detailViews">0</span> views</span>
+                        </div>
+                        <h2 id="detailTitle" class="text-xl font-bold mb-3 text-slate-100">Prompt Title</h2>
+
+                        <!-- Content Copy Box -->
+                        <div id="promptContentArea" class="bg-slate-950 border border-slate-800 p-4 rounded-xl min-h-[140px] flex flex-col justify-between relative overflow-hidden">
+                            <!-- Locked Prompt overlay -->
+                            <div id="lockedOverlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center hidden">
+                                <i class="fa-solid fa-lock text-amber-500 text-3xl mb-2"></i>
+                                <span class="text-xs font-bold uppercase text-slate-400">Premium Locked Content</span>
+                                <p class="text-[10px] text-slate-500 my-1">This premium prompt costs <span id="lockedPrice" class="text-amber-500 font-bold">0</span> Coins</p>
+                                <button onclick="buyPrompt()" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-4 py-1.5 rounded-lg mt-2 transition">Unlock Now</button>
+                            </div>
+                            
+                            <!-- Prompt Body -->
+                            <p id="detailPromptText" class="text-sm text-slate-300 font-mono select-all">Loading content...</p>
+                            <button onclick="copyToClipboard()" class="self-end mt-4 bg-slate-850 hover:bg-slate-800 text-xs px-3 py-1.5 rounded-md text-brand-500 transition font-sans">
+                                <i class="fa-regular fa-copy mr-1"></i> Copy Prompt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Wallet System (Deposit and verification) -->
+    <div id="walletModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md relative p-6">
+            <button onclick="closeWalletModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-wallet text-amber-500"></i> My Wallet</h3>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 mb-6 flex justify-between items-center">
+                <div>
+                    <span class="text-xs text-slate-400">Current Balance</span>
+                    <h2 class="text-2xl font-bold text-amber-500"><span class="walletCoinTotal">0</span> <span class="text-sm font-normal text-slate-500">Coins</span></h2>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-slate-400 block">Conversion Rate</span>
+                    <span class="text-xs font-semibold text-slate-300">10,000 Coins = 1 PKR</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-slate-850 p-3 rounded-lg border border-slate-800">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Manual Payment Method</span>
+                    <p class="text-sm font-semibold">EasyPaisa / JazzCash</p>
+                    <p class="text-xs text-brand-500 font-mono font-bold text-sm">03105784772</p>
+                    <p class="text-xs text-slate-400">Account Name: Nazim Mustafa</p>
+                </div>
+
+                <form id="purchaseCoinsForm" class="space-y-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Deposit Amount (PKR)</label>
+                        <input type="number" id="pkrAmount" placeholder="e.g. 50" required oninput="calculateExchange()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div class="text-xs text-slate-400">You will receive: <span id="coinsResult" class="text-amber-500 font-semibold">0</span> Coins</div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Upload Payment Screenshot (Required)</label>
+                        <input type="file" id="receiptFile" accept="image/*" required class="w-full text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-800 file:text-white hover:file:bg-slate-700">
+                    </div>
+                    <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 rounded-lg text-sm transition">Submit Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Auth Modal (Login / Signup) -->
+    <div id="authModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm relative p-6">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 id="authTitle" class="text-lg font-bold mb-4">Login</h3>
+            <form id="authForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Email Address</label>
+                    <input type="email" id="authEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Password</label>
+                    <input type="password" id="authPassword" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <button type="submit" id="authSubmitBtn" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 rounded-lg text-sm transition">Login</button>
+            </form>
+            <div class="mt-4 text-center text-xs text-slate-400">
+                <span id="authToggleText">Don't have an account?</span>
+                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-brand-500 font-semibold hover:underline">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Integration Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, update, push, child, onValue, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        // Firebase Configuration (Using Realtime Database with Storage link verified)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDR2OugzoVNnKN6OUKsPxC9ajldlhanteE",
+            authDomain: "tournament-af6dd.firebaseapp.com",
+            projectId: "tournament-af6dd",
+            storageBucket: "tournament-af6dd.appspot.com",
+            messagingSenderId: "726964405659",
+            appId: "1:726964405659:web:d03f72c2d6f8721bc98d3e",
+            measurementId: "G-GK0JNQ44N7",
+            databaseURL: "https://tournament-af6dd-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase app modules
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+
+        // Core Application States
+        let currentUser = null;
+        let currentUserData = null;
+        let promptsList = [];
+        let currentFilter = 'All';
+        let isLoginMode = true;
+        let currentDetailPrompt = null;
+
+        // Binding variables inside scope to Global window targets for onclick functions
+        window.switchTab = switchTab;
+        window.openWalletModal = openWalletModal;
+        window.closeWalletModal = closeWalletModal;
+        window.toggleMobileMenu = toggleMobileMenu;
+        window.filterCategory = filterCategory;
+        window.openAuthModal = openAuthModal;
+        window.closeAuthModal = closeAuthModal;
+        window.toggleAuthMode = toggleAuthMode;
+        window.logout = logout;
+        window.toggleAdminTab = toggleAdminTab;
+        window.togglePriceField = togglePriceField;
+        window.calculateExchange = calculateExchange;
+        window.openPromptDetail = openPromptDetail;
+        window.closePromptDetailModal = closePromptDetailModal;
+        window.copyToClipboard = copyToClipboard;
+        window.buyPrompt = buyPrompt;
+        window.approvePayment = approvePayment;
+        window.deletePrompt = deletePrompt;
+        window.editPrompt = editPrompt;
+        window.resetForm = resetForm;
+
+        // Listen for Authentication States
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userRef = ref(db, `users/${user.uid}`);
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    currentUserData = data;
+                    if (data) {
+                        updateAuthUI(true, user.email, data.coins || 0);
+                        if (user.email === 'kazimmustafa38@gmail.com') {
+                            document.getElementById('adminBtnContainer').classList.remove('hidden');
+                            document.getElementById('mobileAdminBtn').classList.remove('hidden');
+                        } else {
+                            document.getElementById('adminBtnContainer').classList.add('hidden');
+                            document.getElementById('mobileAdminBtn').classList.add('hidden');
+                        }
+                    }
+                });
+                // Check if any old pending transactions meet the 10-minute auto-approval threshold
+                triggerAutoApprovalCheck();
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                updateAuthUI(false);
+                document.getElementById('adminBtnContainer').classList.add('hidden');
+                document.getElementById('mobileAdminBtn').classList.add('hidden');
+            }
+        });
+
+        // 10-Minute Automatic Approval Handler
+        async function triggerAutoApprovalCheck() {
+            const txRef = ref(db, 'transactions');
+            const snapshot = await get(txRef);
+            if (snapshot.exists()) {
+                const transactions = snapshot.val();
+                const now = Date.now();
+                const tenMinutes = 10 * 60 * 1000;
+
+                for (let key in transactions) {
+                    const tx = transactions[key];
+                    if (tx.paymentStatus === 'pending' && (now - tx.timestamp) > tenMinutes) {
+                        // Mark transaction state as auto-approved
+                        await update(ref(db, `transactions/${key}`), { paymentStatus: 'auto-approved' });
+                        
+                        // Increment Coins to user profile
+                        const userRef = ref(db, `users/${tx.userId}/coins`);
+                        await runTransaction(userRef, (currentCoins) => {
+                            return (currentCoins || 0) + tx.amountCoins;
+                        });
+                    }
+                }
+            }
+        }
+
+        // Realtime Sync Database Prompts
+        const promptsRef = ref(db, 'prompts');
+        onValue(promptsRef, (snapshot) => {
+            promptsList = [];
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                for (let key in data) {
+                    promptsList.push({ id: key, ...data[key] });
+                }
+            }
+            renderPrompts();
+        });
+
+        // HTML Dynamic Prompts Renderer
+        function renderPrompts() {
+            const grid = document.getElementById('promptsGrid');
+            const countText = document.getElementById('promptsCount');
+            grid.innerHTML = '';
+
+            let filtered = promptsList;
+            if (currentFilter !== 'All') {
+                filtered = promptsList.filter(p => p.tags === currentFilter);
+            }
+
+            // Realtime query search filtering
+            const searchVal = (document.getElementById('desktopSearch').value || document.getElementById('mobileSearch').value || '').toLowerCase();
+            if (searchVal) {
+                filtered = filtered.filter(p => p.title.toLowerCase().includes(searchVal) || p.description.toLowerCase().includes(searchVal));
+            }
+
+            // Order sorting layout logic: Pinned first, then sorted by most views
+            filtered.sort((a, b) => {
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+                return b.views - a.views;
+            });
+
+            countText.innerText = `${filtered.length} prompts found`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500">No prompts found matching your criteria.</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const isPaid = p.type === 'paid';
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-brand-500 transition cursor-pointer group flex flex-col justify-between";
+                card.onclick = () => openPromptDetail(p.id);
+
+                card.innerHTML = `
+                    <div class="relative overflow-hidden aspect-square bg-slate-950">
+                        <img src="${p.imageURL || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe'}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <div class="absolute top-2 left-2 flex flex-col gap-1">
+                            ${p.isTrending ? '<span class="bg-red-500 text-[9px] font-bold text-white px-1.5 py-0.5 rounded shadow uppercase">Trending</span>' : ''}
+                            ${p.isPinned ? '<span class="bg-amber-500 text-[9px] font-bold text-slate-950 px-1.5 py-0.5 rounded shadow uppercase">Pinned</span>' : ''}
+                        </div>
+                        <span class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur text-[10px] px-2 py-0.5 rounded font-medium text-slate-300">
+                            ${isPaid ? `<span class="text-amber-400 font-bold"><i class="fa-solid fa-coins mr-1"></i>${p.priceCoins}</span>` : 'Free'}
+                        </span>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="text-xs font-bold line-clamp-1 group-hover:text-brand-500 transition">${p.title}</h4>
+                        <div class="flex justify-between items-center mt-2 text-[10px] text-slate-500">
+                            <span><i class="fa-regular fa-eye mr-1"></i>${p.views || 0}</span>
+                            <span>#${p.tags || 'General'}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Realtime Sync Pending Purchases List to Admin dashboard
+        const transRef = ref(db, 'transactions');
+        onValue(transRef, (snapshot) => {
+            const list = document.getElementById('adminPaymentsList');
+            list.innerHTML = '';
+            if (snapshot.exists() && currentUser && currentUser.email === 'kazimmustafa38@gmail.com') {
+                const data = snapshot.val();
+                let hasPending = false;
+                for (let key in data) {
+                    const tx = data[key];
+                    if (tx.paymentStatus === 'pending') {
+                        hasPending = true;
+                        const tr = document.createElement('tr');
+                        tr.className = "border-b border-slate-800 hover:bg-slate-850";
+                        tr.innerHTML = `
+                            <td class="px-4 py-3 text-xs font-semibold">${tx.userEmail}</td>
+                            <td class="px-4 py-3">
+                                <a href="${tx.screenshotURL}" target="_blank" class="text-brand-500 hover:underline text-xs flex items-center gap-1">
+                                    <i class="fa-solid fa-image"></i> View Receipt
+                                </a>
+                            </td>
+                            <td class="px-4 py-3 text-xs font-bold text-amber-500">${tx.amountCoins.toLocaleString()}</td>
+                            <td class="px-4 py-3"><span class="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded text-[10px]">${tx.paymentStatus}</span></td>
+                            <td class="px-4 py-3">
+                                <button onclick="approvePayment('${key}', '${tx.userId}', ${tx.amountCoins})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded transition">Approve</button>
+                            </td>
+                        `;
+                        list.appendChild(tr);
+                    }
+                }
+                if (!hasPending) {
+                    list.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-500">No pending payments.</td></tr>`;
+                }
+            } else {
+                list.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-500">No pending payments.</td></tr>`;
+            }
+        });
+
+        // Search Handlers Inputs Link
+        document.getElementById('desktopSearch').addEventListener('input', renderPrompts);
+        document.getElementById('mobileSearch').addEventListener('input', renderPrompts);
+
+        // Navigation Tab router logic
+        function switchTab(tabId) {
+            document.getElementById('heroSection').classList.add('hidden');
+            document.getElementById('promptsSection').classList.add('hidden');
+            document.getElementById('adminView').classList.add('hidden');
+
+            if (tabId === 'home' || tabId === 'discover') {
+                document.getElementById('heroSection').classList.remove('hidden');
+                document.getElementById('promptsSection').classList.remove('hidden');
+                if (tabId === 'discover') {
+                    currentFilter = 'All';
+                    renderPrompts();
+                }
+            } else if (tabId === 'admin') {
+                if (currentUser && currentUser.email === 'kazimmustafa38@gmail.com') {
+                    document.getElementById('adminView').classList.remove('hidden');
+                } else {
+                    alert("Access Denied: Admin authorization required.");
+                    switchTab('home');
+                }
+            }
+        }
+
+        // Filtering prompts category pills
+        function filterCategory(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.innerText.trim() === cat || (cat === 'All' && btn.innerText.trim() === 'All Prompts')) {
+                    btn.classList.add('bg-brand-500', 'text-white');
+                    btn.classList.remove('bg-slate-900', 'border-slate-800');
+                } else {
+                    btn.classList.remove('bg-brand-500', 'text-white');
+                    btn.classList.add('bg-slate-900', 'border-slate-800');
+                }
+            });
+            renderPrompts();
+        }
+
+        // Manual coin purchase verification handler (Admin Action)
+        async function approvePayment(txId, userId, amount) {
+            try {
+                // Set transaction state status as verified approved
+                await update(ref(db, `transactions/${txId}`), { paymentStatus: 'approved' });
+                // Top-up user coins
+                const userCoinsRef = ref(db, `users/${userId}/coins`);
+                await runTransaction(userCoinsRef, (currentCoins) => {
+                    return (currentCoins || 0) + amount;
+                });
+                alert("Payment request approved. Coins credited to user wallet.");
+            } catch (err) {
+                alert("Error during payment update: " + err.message);
+            }
+        }
+
+        // CREATE OR UPDATE PROMPT (Saves file to Firebase Storage & link path reference in Realtime DB)
+        document.getElementById('promptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('editPromptId').value;
+            const title = document.getElementById('pTitle').value;
+            const category = document.getElementById('pCategory').value;
+            const fileInput = document.getElementById('pImageFile');
+            const description = document.getElementById('pDescription').value;
+            const type = document.getElementById('pType').value;
+            const price = parseInt(document.getElementById('pPrice').value) || 0;
+            const isTrending = document.getElementById('pTrending').checked;
+            const isPinned = document.getElementById('pPinned').checked;
+
+            try {
+                let savedImageURL = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe"; // fallback base URL
+
+                // Update standard image references (If edit state was set and no new image is provided)
+                if (editId) {
+                    const existingPrompt = promptsList.find(p => p.id === editId);
+                    if (existingPrompt && existingPrompt.imageURL) {
+                        savedImageURL = existingPrompt.imageURL;
+                    }
+                }
+
+                // If new file is uploaded
+                if (fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    // Create storage path reference
+                    const storageRef = sRef(storage, `prompts/${Date.now()}_${file.name}`);
+                    
+                    // Upload file bytes to Storage
+                    const uploadSnap = await uploadBytes(storageRef, file);
+                    // Retrieve download URL link
+                    savedImageURL = await getDownloadURL(uploadSnap.ref);
+                }
+
+                const promptPayload = {
+                    title: title,
+                    imageURL: savedImageURL, // Storing only Storage link string path here
+                    description: description,
+                    type: type,
+                    priceCoins: type === 'paid' ? price : 0,
+                    createdAt: Date.now(),
+                    isTrending: isTrending,
+                    isPinned: isPinned,
+                    tags: category,
+                    views: editId ? (promptsList.find(p => p.id === editId)?.views || 0) : 0
+                };
+
+                if (editId) {
+                    await update(ref(db, `prompts/${editId}`), promptPayload);
+                    alert("Prompt updated successfully.");
+                } else {
+                    const newPromptRef = push(ref(db, 'prompts'));
+                    await set(newPromptRef, promptPayload);
+                    alert("New Prompt created successfully with Storage link URL.");
+                }
+                resetForm();
+            } catch (err) {
+                alert("Failed saving prompt: " + err.message);
+            }
+        });
+
+        function resetForm() {
+            document.getElementById('promptForm').reset();
+            document.getElementById('editPromptId').value = '';
+            document.getElementById('priceFieldContainer').classList.add('hidden');
+        }
+
+        async function editPrompt(id) {
+            const p = promptsList.find(item => item.id === id);
+            if (p) {
+                document.getElementById('editPromptId').value = p.id;
+                document.getElementById('pTitle').value = p.title;
+                document.getElementById('pCategory').value = p.tags || 'Viral';
+                document.getElementById('pDescription').value = p.description;
+                document.getElementById('pType').value = p.type;
+                document.getElementById('pPrice').value = p.priceCoins || 0;
+                document.getElementById('pTrending').checked = !!p.isTrending;
+                document.getElementById('pPinned').checked = !!p.isPinned;
+                togglePriceField();
+                switchTab('admin');
+                toggleAdminTab('addPrompt');
+            }
+        }
+
+        async function deletePrompt(id) {
+            if (confirm("Are you sure you want to permanently delete this prompt?")) {
+                await remove(ref(db, `prompts/${id}`));
+                alert("Prompt deleted.");
+            }
+        }
+
+        function togglePriceField() {
+            const type = document.getElementById('pType').value;
+            if (type === 'paid') {
+                document.getElementById('priceFieldContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('priceFieldContainer').classList.add('hidden');
+            }
+        }
+
+        // Auth management interfaces
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "Login" : "Sign Up / Register";
+            document.getElementById('authSubmitBtn').innerText = isLoginMode ? "Login" : "Register";
+            document.getElementById('authToggleText').innerText = isLoginMode ? "Don't have an account?" : "Already have an account?";
+            document.getElementById('authToggleBtn').innerText = isLoginMode ? "Register" : "Login";
+        }
+
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                    await set(ref(db, `users/${userCred.user.uid}`), {
+                        email: email,
+                        coins: 0,
+                        isAdmin: email === 'kazimmustafa38@gmail.com',
+                        createdAt: Date.now()
+                    });
+                }
+                closeAuthModal();
+            } catch (err) {
+                alert("Auth Failure: " + err.message);
+            }
+        });
+
+        async function logout() {
+            await signOut(auth);
+        }
+
+        function updateAuthUI(isLoggedIn, email = '', coins = 0) {
+            const authContainer = document.getElementById('authContainer');
+            const mobileAuthContainer = document.getElementById('mobileAuthContainer');
+            
+            document.getElementById('desktopCoinDisplay').innerText = coins.toLocaleString();
+            document.getElementById('mobileMenuCoinDisplay').innerText = coins.toLocaleString();
+            document.querySelectorAll('.walletCoinTotal').forEach(el => el.innerText = coins.toLocaleString());
+
+            if (isLoggedIn) {
+                authContainer.innerHTML = `
+                    <span class="text-slate-400 mr-2 text-xs">${email}</span>
+                    <button onclick="logout()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg font-bold transition">Logout</button>
+                `;
+                mobileAuthContainer.innerHTML = `
+                    <span class="text-slate-400 text-sm font-semibold truncate block mb-1">${email}</span>
+                    <button onclick="logout(); toggleMobileMenu();" class="w-full bg-slate-800 hover:bg-slate-700 py-2.5 rounded-lg text-sm font-semibold transition text-center">Logout</button>
+                `;
+            } else {
+                authContainer.innerHTML = `
+                    <button onclick="openAuthModal()" class="bg-brand-500 hover:bg-brand-600 text-xs px-4 py-2 rounded-full font-bold transition">Join Free</button>
+                `;
+                mobileAuthContainer.innerHTML = `
+                    <button onclick="openAuthModal(); toggleMobileMenu();" class="w-full bg-brand-500 hover:bg-brand-600 py-2.5 rounded-lg text-sm font-semibold transition text-center">Join Free</button>
+                `;
+            }
+        }
+
+        // View Prompt Detail Modal Controller
+        async function openPromptDetail(id) {
+            const p = promptsList.find(item => item.id === id);
+            if (!p) return;
+
+            currentDetailPrompt = p;
+            
+            // View Increment counter
+            const viewsRef = ref(db, `prompts/${id}/views`);
+            runTransaction(viewsRef, (curr) => {
+                return (curr || 0) + 1;
+            });
+
+            document.getElementById('detailImg').src = p.imageURL || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe';
+            document.getElementById('downloadBtn').href = p.imageURL || '#';
+            document.getElementById('detailTitle').innerText = p.title;
+            document.getElementById('detailViews').innerText = (p.views || 0) + 1;
+            document.getElementById('detailTag').innerText = p.tags || 'Trending';
+
+            const lockedOverlay = document.getElementById('lockedOverlay');
+            const detailText = document.getElementById('detailPromptText');
+
+            if (p.type === 'paid') {
+                const hasUnlocked = currentUserData && currentUserData.unlockedPrompts && currentUserData.unlockedPrompts[p.id];
+                if (hasUnlocked || (currentUser && currentUser.email === 'kazimmustafa38@gmail.com')) {
+                    lockedOverlay.classList.add('hidden');
+                    detailText.innerText = p.description;
+                } else {
+                    document.getElementById('lockedPrice').innerText = p.priceCoins;
+                    lockedOverlay.classList.remove('hidden');
+                    detailText.innerText = '•••• •••• •••• •••• •••• ••••';
+                }
+            } else {
+                lockedOverlay.classList.add('hidden');
+                detailText.innerText = p.description;
+            }
+
+            // Quick controls actions (Only if logged-in user is admin)
+            if (currentUser && currentUser.email === 'kazimmustafa38@gmail.com') {
+                detailText.innerHTML += `
+                    <div class="mt-4 pt-4 border-t border-slate-800 flex gap-2">
+                        <button onclick="editPrompt('${p.id}'); closePromptDetailModal();" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 py-1 rounded transition">Edit Info</button>
+                        <button onclick="deletePrompt('${p.id}'); closePromptDetailModal();" class="bg-red-600 hover:bg-red-700 text-white text-[10px] px-2 py-1 rounded transition">Delete Prompt</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('promptDetailModal').classList.remove('hidden');
+        }
+
+        function closePromptDetailModal() {
+            document.getElementById('promptDetailModal').classList.add('hidden');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('detailPromptText').innerText;
+            if (currentDetailPrompt && currentDetailPrompt.type === 'paid') {
+                const hasUnlocked = currentUserData && currentUserData.unlockedPrompts && currentUserData.unlockedPrompts[currentDetailPrompt.id];
+                if (!hasUnlocked && currentUser.email !== 'kazimmustafa38@gmail.com') {
+                    alert("Please unlock this premium prompt first before attempting copy action.");
+                    return;
+                }
+            }
+            navigator.clipboard.writeText(text);
+            alert("Prompt text successfully copied to clipboard!");
+        }
+
+        // Deduct Coins & Unlock premium logic
+        async function buyPrompt() {
+            if (!currentUser) {
+                alert("Please log in first to purchase and unlock premium content.");
+                openAuthModal();
+                return;
+            }
+            if (!currentDetailPrompt) return;
+
+            const price = currentDetailPrompt.priceCoins;
+            const userCoins = currentUserData.coins || 0;
+
+            if (userCoins < price) {
+                alert("Insufficient Coins. Please buy coins to proceed.");
+                closePromptDetailModal();
+                openWalletModal();
+                return;
+            }
+
+            if (confirm(`Unlock "${currentDetailPrompt.title}" for ${price} Coins?`)) {
+                try {
+                    // Deduct coins via Database transaction securely
+                    const userCoinsRef = ref(db, `users/${currentUser.uid}/coins`);
+                    await runTransaction(userCoinsRef, (current) => {
+                        return (current || 0) - price;
+                    });
+
+                    // Update unlocked mapping index key
+                    await set(ref(db, `users/${currentUser.uid}/unlockedPrompts/${currentDetailPrompt.id}`), true);
+
+                    alert("Unlock Success! Coins deducted.");
+                    openPromptDetail(currentDetailPrompt.id);
+                } catch (err) {
+                    alert("Failure executing wallet transaction: " + err.message);
+                }
+            }
+        }
+
+        // USER COIN PURCHASE SCREENSHOT UPLOAD (Uploads receipt image to Firebase Storage)
+        document.getElementById('purchaseCoinsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) {
+                alert("Please log in to submit a purchase request.");
+                openAuthModal();
+                return;
+            }
+
+            const pkr = parseFloat(document.getElementById('pkrAmount').value);
+            const coins = pkr * 10000;
+            const fileInput = document.getElementById('receiptFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select payment receipt screenshot image to proceed.");
+                return;
+            }
+
+            try {
+                // Unique path inside User specific folder context
+                const storageRef = sRef(storage, `receipts/${currentUser.uid}/${Date.now()}_${file.name}`);
+                
+                // Upload image bytes file
+                const uploadSnap = await uploadBytes(storageRef, file);
+                
+                // Get Storage download public URL
+                const screenshotURL = await getDownloadURL(uploadSnap.ref);
+
+                // Write metadata structure with Storage screenshot link to Realtime Database
+                const txRef = push(ref(db, 'transactions'));
+                await set(txRef, {
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    amountCoins: coins,
+                    paymentStatus: 'pending',
+                    screenshotURL: screenshotURL, // Link parameter saved
+                    timestamp: Date.now()
+                });
+
+                alert("Deposit request submitted successfully. Manual review pending. Coins will be credited within 10 minutes automatically.");
+                closeWalletModal();
+                document.getElementById('purchaseCoinsForm').reset();
+            } catch (err) {
+                alert("Failed to submit receipt screenshot: " + err.message);
+            }
+        });
+
+        // UI toggles helper actions
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('translate-x-full');
+        }
+        function openWalletModal() {
+            document.getElementById('walletModal').classList.remove('hidden');
+        }
+        function closeWalletModal() {
+            document.getElementById('walletModal').classList.add('hidden');
+        }
+        function toggleAdminTab(tab) {
+            if (tab === 'addPrompt') {
+                document.getElementById('adminAddPromptTab').classList.remove('hidden');
+                document.getElementById('adminPaymentsTab').classList.add('hidden');
+            } else {
+                document.getElementById('adminAddPromptTab').classList.add('hidden');
+                document.getElementById('adminPaymentsTab').classList.remove('hidden');
+            }
+        }
+        function calculateExchange() {
+            const pkr = parseFloat(document.getElementById('pkrAmount').value) || 0;
+            document.getElementById('coinsResult').innerText = (pkr * 10000).toLocaleString();
+        }
+    </script>
+</body>
+</html>
